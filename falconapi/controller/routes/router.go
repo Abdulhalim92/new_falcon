@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"falconapi/api"
-	"falconapi/api/middlewares"
+	"falconapi/controller"
+	"falconapi/controller/middlewares"
 	"falconapi/use_cases"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -16,7 +16,7 @@ type webApi struct {
 	token   string
 }
 
-func NewWebApi(engine *gin.Engine, useCase use_cases.UseCase, token string) api.WebApi {
+func NewWebApi(engine *gin.Engine, useCase use_cases.UseCase, token string) controller.WebApi {
 	return &webApi{
 		router:  engine,
 		useCase: useCase,
@@ -46,7 +46,7 @@ func (w *webApi) InitRoutes() {
 		auth.POST("/validate-otp", w.ValidateOtp)
 	}
 
-	app := grp.Group("/api")
+	app := grp.Group("/controller")
 	app.Use(middlewares.JwtMiddleware())
 	{
 		app.GET("/", w.CheckMiddleware)

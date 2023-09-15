@@ -1,4 +1,4 @@
-package api
+package controller
 
 type WebApi interface {
 	InitRoutes()

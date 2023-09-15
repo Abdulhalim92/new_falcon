@@ -43,7 +43,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/": {
+        "/controller/": {
             "get": {
                 "description": "Проверка middleware",
                 "tags": [
@@ -60,7 +60,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/region": {
+        "/controller/region": {
             "get": {
                 "description": "Получение списка регионов",
                 "consumes": [
@@ -101,7 +101,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/terminalsinfo": {
+        "/controller/terminalsinfo": {
             "get": {
                 "description": "Получение инфо - статусов терминалов",
                 "consumes": [
@@ -142,7 +142,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/terminalstatuses": {
+        "/controller/terminalstatuses": {
             "get": {
                 "description": "Получение статусов терминалов",
                 "consumes": [

@@ -1,11 +1,25 @@
 package middlewares
 
 import (
+	"falconapi/domain/entities"
 	"falconapi/pkg/jwt"
 	"github.com/gin-gonic/gin"
 	golangJwt "github.com/golang-jwt/jwt/v5"
 	"net/http"
 )
+
+func GetUserRoles() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claimsX := c.Value("key_claims")
+		claims := claimsX.(golangJwt.MapClaims)
+		jwtHelper := jwt.NewJwtHelper(claims)
+
+		userRole := entities.IncomingUserRole{
+			UserName: jwtHelper.GetUserName(),
+			UserID:   jwtHelper.GetUserId(),
+		}
+	}
+}
 
 func NewRequiresRealmRole(role string) gin.HandlerFunc {
 	return func(c *gin.Context) {

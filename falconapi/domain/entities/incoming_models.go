@@ -6,9 +6,9 @@ import (
 )
 
 type IncomingUserRole struct {
-	userName string // userName
-	role     string // roleName
-	userID   int    // id
+	UserName string // userName
+	Role     string // roleName
+	UserID   int    // id
 }
 
 type PasswordChange struct {

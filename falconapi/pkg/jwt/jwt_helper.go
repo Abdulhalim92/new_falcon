@@ -39,6 +39,10 @@ func (j *JwtHelper) TokenHasScope(scope string) bool {
 	return goutil.Contains(j.scopes, scope)
 }
 
+func (j *JwtHelper) GetUserName() string {
+	return j.username
+}
+
 func parseRealmRoles(claims jwt.MapClaims) []string {
 	var realmRoles []string = make([]string, 0)
 

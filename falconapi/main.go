@@ -1,7 +1,7 @@
 package main
 
 import (
-	"falconapi/api/routes"
+	"falconapi/controller/routes"
 	_ "falconapi/docs"
 	gorm_db "falconapi/pkg/gorm-db"
 	"falconapi/pkg/logging"

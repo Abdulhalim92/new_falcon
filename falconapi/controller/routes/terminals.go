@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"falconapi/domain/entities"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 // @Tags Terminals
 // @OperationId checkMiddleware
 // @Success 200 {string} 1
-// @Router /api/ [get]
+// @Router /controller/ [get]
 func (w *webApi) CheckMiddleware(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Message": "token is working"})
 }
@@ -25,7 +26,7 @@ func (w *webApi) CheckMiddleware(c *gin.Context) {
 // @Success 200 {object} map[string][]entities.TerminalStatus
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /api/terminalstatuses [get]
+// @Router /controller/terminalstatuses [get]
 func (w *webApi) GetTerminalsStatuses(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -47,7 +48,7 @@ func (w *webApi) GetTerminalsStatuses(c *gin.Context) {
 // @Success 200 {object} map[string][]entities.TerminalStatus
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /api/terminalsinfo [get]
+// @Router /controller/terminalsinfo [get]
 func (w *webApi) GetTerminalsInfo(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -70,7 +71,7 @@ func (w *webApi) GetTerminalsInfo(c *gin.Context) {
 // @Success 200 {object} map[string][]entities.TRegion
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /api/region [get]
+// @Router /controller/region [get]
 func (w *webApi) GetRegions(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -82,4 +83,13 @@ func (w *webApi) GetRegions(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": regions})
+}
+
+func (w *webApi) GenerateTermPassword(c *gin.Context) {
+	var endpoint entities.TEndpoint
+
+	if err := c.ShouldBindJSON(&endpoint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Message": err.Error()})
+		return
+	}
 }
