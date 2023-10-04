@@ -38,11 +38,56 @@ services:
     volumes:
       - .:/docker-entrypoint-init-db.d
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: root_db
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: keycloak_db
     ports:
       - "5433:5432"
+    networks:
+      - demo-network
+
+  postgres-api:
+    container_name: postgres-api
+    image: postgres:latest
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=50"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=4GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=10GB"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "idle_in_transaction_session_timeout=10s"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+    restart: always
+    volumes:
+      - .:/docker-entrypoint-init-db.d
+    environment:
+      POSTGRES_USER: falcon
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: falcon_db
+    ports:
+      - "5434:5432"
     networks:
       - demo-network
 
@@ -80,10 +125,10 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin123
       KC_DB: postgres
       KC_DB_URL_HOST: postgres
-      KC_DB_URL_DATABASE: root_db
+      KC_DB_URL_DATABASE: keycloak_db
       KC_DB_URL_PORT: 5432
-      KC_DB_USERNAME: root
-      KC_DB_PASSWORD: root
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: pass
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     networks:

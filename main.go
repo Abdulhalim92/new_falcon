@@ -35,8 +35,8 @@ func main() {
 	newWebApi := routes.NewWebApi(router, log, newService)
 	newWebApi.InitRoutes()
 
-	listenPort := config.AppParams.PortRun
+	//listenPort := config.AppParams.PortRun
 
-	err = router.Run(listenPort)
+	err = router.Run(":8000")
 	log.Fatal(err)
 }

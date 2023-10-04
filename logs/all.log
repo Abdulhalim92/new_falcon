@@ -6,3 +6,5 @@
 {"file":"main.go:25","func":"main.main()","level":"fatal","msg":"failed to connect to `host=localhost user=falcon database=falcon_db`: failed SASL auth (FATAL: password authentication failed for user \"falcon\" (SQLSTATE 28P01))","time":"2023-10-03T10:55:58+05:00"}
 {"file":"main.go:41","func":"main.main()","level":"fatal","msg":"listen tcp :80: bind: permission denied","time":"2023-10-03T10:56:14+05:00"}
 {"file":"main.go:41","func":"main.main()","level":"fatal","msg":"listen tcp :80: bind: permission denied","time":"2023-10-03T10:59:45+05:00"}
+{"file":"main.go:25","func":"main.main()","level":"fatal","msg":"failed to connect to `host=localhost user=falcon database=falcon_db`: failed SASL auth (FATAL: password authentication failed for user \"falcon\" (SQLSTATE 28P01))","time":"2023-10-04T17:58:32+05:00"}
+{"file":"main.go:41","func":"main.main()","level":"fatal","msg":"listen tcp :80: bind: permission denied","time":"2023-10-04T17:58:53+05:00"}
