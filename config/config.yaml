@@ -1,6 +1,6 @@
 keycloak:
   realm: my-demo
-  base_url: http://localhost:8181"
+  base_url: http://localhost:8181
   client_id: demo-backend
   client_secret: j1ajW7jjzs4jLshY9OlagOn2hrJ27AN1
   realm_rs256_public_key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxNjgeyGwhImULQhBFZTqGps1GE7u1ZZOVx4L0quSGEHoQPodhRbAiqZieqaLH4xU+I6XBYKNYgyro+4/Nn2/4uPnD23sDWil36EfkuNk6u3EC6JYfHa1cr6cLWUa53rnsk4rSz28Uc4SN8a7uSfHQzsGkeX1W1xKiwyaVO+RJOTNpb1nDxvlsZ8WkhI1WqX/EVjaLvpOia1pNeBCYWgNkbw5hdKTzvx7t+O+t48vD4vA/Q3PoofLAvXj+hDCfg+Uqe/kYUV24oFvRBYYJB2WWAD1DOfuN5BaXbI7clMk2lGzSWX8KPnUCcQOMDniiZAM2hbfRMATwPsJh6mrZcjtwwIDAQAB

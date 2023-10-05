@@ -8,11 +8,23 @@ import (
 	"strconv"
 )
 
+// Register
+// @Summary Метод регистрации пользователя
+// @Description Регистрация пользователя
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param RegisterInput body model.RegisterRequest true "Login data"
+// @OperationId login
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /auth/user [post]
 func (w *WebApi) register(c *gin.Context) {
 	var (
 		ctx      = c.Request.Context()
-		request  = &model.RegisterRequest{}
-		response = &model.Response{}
+		request  = model.RegisterRequest{}
+		response = model.Response{}
 	)
 
 	err := c.ShouldBindJSON(&request)
@@ -25,9 +37,9 @@ func (w *WebApi) register(c *gin.Context) {
 		return
 	}
 
-	registerResponse, appError := w.service.Register(ctx, *request)
-	if appError != nil {
-		w.logger.Errorf(appError.Message)
+	registerResponse, appError := w.service.Register(ctx, request)
+	if appError.Err != nil {
+		w.logger.Error(appError.Message)
 		if appError.StatusCode == model.BadRequest {
 			response.ErrorResponse.Err = appError.Err
 			response.ErrorResponse.Description = appError.Message
@@ -48,11 +60,22 @@ func (w *WebApi) register(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
+// @Summary Метод входа пользователя
+// @Description Вход пользователя под логином и паролем
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param LoginInput body model.LoginRequest true "Login data"
+// @OperationId login
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /auth/login [post]
 func (w *WebApi) login(c *gin.Context) {
 	var (
 		ctx      = c.Request.Context()
-		request  = &model.LoginRequest{}
-		response = &model.Response{}
+		request  = model.LoginRequest{}
+		response = model.Response{}
 	)
 
 	err := c.ShouldBindJSON(&request)
@@ -65,8 +88,8 @@ func (w *WebApi) login(c *gin.Context) {
 		return
 	}
 
-	loginResponse, appError := w.service.Login(ctx, *request)
-	if appError != nil {
+	loginResponse, appError := w.service.Login(ctx, request)
+	if appError.Err != nil {
 		w.logger.Errorf(appError.Message)
 		if appError.StatusCode == model.BadRequest {
 			response.ErrorResponse.Err = appError.Err
@@ -89,6 +112,16 @@ func (w *WebApi) login(c *gin.Context) {
 
 }
 
+// @Summary Метод генарации OTP
+// @Description Генерация OTP
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param GenerateOtp body model.GenerateOtpRequest true "Generate OTP data"
+// @Success 200 {string} binary "PNG image data"
+// @Failure 400 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /auth/generate-otp [post]
 func (w *WebApi) generateOtp(c *gin.Context) {
 	var (
 		ctx      = c.Request.Context()
@@ -107,7 +140,7 @@ func (w *WebApi) generateOtp(c *gin.Context) {
 	}
 
 	generateOtpResponse, appError := w.service.GenerateOTP(ctx, *request)
-	if appError != nil {
+	if appError.Err != nil {
 		w.logger.Errorf(appError.Message)
 		if appError.StatusCode == model.BadRequest {
 			response.ErrorResponse.Err = appError.Err
@@ -127,9 +160,21 @@ func (w *WebApi) generateOtp(c *gin.Context) {
 	c.Set("Content-Type", "image/png")
 	c.Set("Content-Length", strconv.Itoa(len(generateOtpResponse.QrCode.Bytes())))
 
+	c.Writer.Write(generateOtpResponse.QrCode.Bytes())
+
 	c.Status(http.StatusOK)
 }
 
+// @Summary Метод валидации OTP
+// @Description Валидация OTP
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param ValidateOtp body model.ValidateOtpRequest true "Validate OTP data"
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /auth/validate-otp [post]
 func (w *WebApi) validateOtp(c *gin.Context) {
 	var (
 		ctx      = c.Request.Context()
@@ -148,7 +193,7 @@ func (w *WebApi) validateOtp(c *gin.Context) {
 	}
 
 	validateOtpResponse, appError := w.service.ValidateOTP(ctx, *request)
-	if appError != nil {
+	if appError.Err != nil {
 		w.logger.Errorf(appError.Message)
 		if appError.StatusCode == model.BadRequest {
 			response.ErrorResponse.Err = appError.Err

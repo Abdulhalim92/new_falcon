@@ -62,8 +62,8 @@ func successHandler(c *gin.Context, tokenRetrospect service.Identity) {
 
 	c.Set("key_claims", claims)
 
-	rptResult, err := tokenRetrospect.RetrospectToken(ctx, token.Raw)
-	if err != nil {
+	rptResult, appError := tokenRetrospect.RetrospectToken(ctx, token.Raw)
+	if appError.Err != nil {
 		panic(err)
 	}
 	if !*rptResult.Active {

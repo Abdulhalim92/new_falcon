@@ -9,15 +9,14 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func (s *service) Register(ctx context.Context, request model.RegisterRequest) (*model.RegisterResponse, *model.AppError) {
+func (s *service) Register(ctx context.Context, request model.RegisterRequest) (*model.RegisterResponse, model.AppError) {
 	var (
 		validate = validator.New()
-		appError *model.AppError
-		response *model.RegisterResponse
+		appError model.AppError
 		user     *entity.User
 	)
 
-	err := validate.Struct(response)
+	err := validate.Struct(request)
 	if err != nil {
 		appError.Err = err
 		appError.Message = err.Error()
@@ -38,13 +37,13 @@ func (s *service) Register(ctx context.Context, request model.RegisterRequest) (
 	(*keycloakUser.Attributes)["mobile"] = []string{request.MobileNumber}
 
 	keycloakUser, appError = s.identity.CreateUser(ctx, *keycloakUser, request.Password, request.Role)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
 	// check user for existing in database
 	user, appError = s.userRepo.GetUserByName(ctx, request.Username)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 	if user.ID != 0 {
@@ -61,25 +60,25 @@ func (s *service) Register(ctx context.Context, request model.RegisterRequest) (
 	user.FullName = request.FirstName + " " + request.LastName
 
 	user, appError = s.userRepo.CreateUser(ctx, user)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
 	return &model.RegisterResponse{
 		UserID:         user.ID,
 		KeycloakUserID: user.KeycloakID,
-	}, nil
+	}, appError
 }
 
-func (s *service) Login(ctx context.Context, request model.LoginRequest) (*model.LoginResponse, *model.AppError) {
+func (s *service) Login(ctx context.Context, request model.LoginRequest) (*model.LoginResponse, model.AppError) {
 	var (
 		validate   = validator.New()
-		response   *model.LoginResponse
-		appError   *model.AppError
+		response   model.LoginResponse
+		appError   model.AppError
 		attributes map[string][]string
 	)
 
-	err := validate.Struct(response)
+	err := validate.Struct(request)
 	if err != nil {
 		appError.Message = err.Error()
 		appError.Err = err
@@ -88,11 +87,13 @@ func (s *service) Login(ctx context.Context, request model.LoginRequest) (*model
 	}
 
 	keycloakUser, _, appError := s.identity.LoginUser(ctx, request.Username, request.Password)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
-	response.KeycloakUserID = *keycloakUser.ID
+	if keycloakUser.ID != nil {
+		response.KeycloakUserID = *keycloakUser.ID
+	}
 
 	if keycloakUser.Attributes == nil {
 		response.Message = "please generate OTP"
@@ -109,42 +110,42 @@ func (s *service) Login(ctx context.Context, request model.LoginRequest) (*model
 		}
 	}
 
-	return response, nil
+	return &response, appError
 }
 
-func (s *service) GenerateOTP(ctx context.Context, request model.GenerateOtpRequest) (*model.GenerateOtpResponse, *model.AppError) {
+func (s *service) GenerateOTP(ctx context.Context, request model.GenerateOtpRequest) (*model.GenerateOtpResponse, model.AppError) {
 	var (
-		appError  *model.AppError
-		response  *model.GenerateOtpResponse
+		appError  model.AppError
+		response  model.GenerateOtpResponse
 		attribute = make(map[string][]string)
 	)
 
 	otpSecret, buf, appError := s.identity.GenerateOTP(ctx)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
 	attribute["otp_secret"] = []string{otpSecret}
 
 	appError = s.identity.UpdateUserAttribute(ctx, request.KeycloakUserID, attribute)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
 	response.KeycloakUserID = request.KeycloakUserID
 	response.QrCode = buf
 
-	return response, nil
+	return &response, appError
 }
 
-func (s *service) ValidateOTP(ctx context.Context, request model.ValidateOtpRequest) (*model.ValidateOtpResponse, *model.AppError) {
+func (s *service) ValidateOTP(ctx context.Context, request model.ValidateOtpRequest) (*model.ValidateOtpResponse, model.AppError) {
 	var (
-		appError *model.AppError
-		response *model.ValidateOtpResponse
+		appError model.AppError
+		response model.ValidateOtpResponse
 	)
 
-	validOTP, appError := s.identity.ValidateOTP(ctx, request.Username, request.Password)
-	if appError != nil {
+	validOTP, appError := s.identity.ValidateOTP(ctx, request.KeycloakUserID, request.OtpToken)
+	if appError.Err != nil {
 		return nil, appError
 	}
 	if !validOTP {
@@ -155,7 +156,7 @@ func (s *service) ValidateOTP(ctx context.Context, request model.ValidateOtpRequ
 	}
 
 	keycloakUser, token, appError := s.identity.LoginUser(ctx, request.Username, request.Password)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
@@ -164,5 +165,5 @@ func (s *service) ValidateOTP(ctx context.Context, request model.ValidateOtpRequ
 	response.AccessToken = token.AccessToken
 	response.RefreshToken = token.RefreshToken
 
-	return response, nil
+	return &response, appError
 }

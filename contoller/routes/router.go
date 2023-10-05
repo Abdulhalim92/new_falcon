@@ -6,6 +6,8 @@ import (
 	"falcon/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 )
 
@@ -35,6 +37,7 @@ func (w *WebApi) InitRoutes() {
 
 	grp := w.router.Group("/v1")
 	grp.GET("/", w.healthCheck)
+	grp.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := grp.Group("/auth")
 	{
@@ -45,6 +48,13 @@ func (w *WebApi) InitRoutes() {
 	}
 }
 
+// @Summary Метод проверки состояния системы
+// @Description Проверка состояния системы
+// @Tags HealthCheck
+// @Accept json
+// @Produce json
+// @Success 200 {string} string
+// @Router / [get]
 func (w *WebApi) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Message": "Состояние сервиса FalconApi"})
 }

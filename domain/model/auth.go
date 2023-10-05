@@ -5,13 +5,13 @@ import (
 )
 
 type RegisterRequest struct {
-	Username     string `validate:"required,min=3,max=15"`
-	Password     string `validate:"required"`
-	FirstName    string `validate:"min=1,max=30"`
-	LastName     string `validate:"min=1,max=30"`
-	Email        string `validate:"required,email"`
-	MobileNumber string `validate:"required"`
-	Role         string `validate:"required"`
+	Username     string `json:"username" validate:"required,min=3,max=15"`
+	Password     string `json:"password" validate:"required"`
+	FirstName    string `json:"first_name" validate:"min=1,max=30"`
+	LastName     string `json:"last_name" validate:"min=1,max=30"`
+	Email        string `json:"email" validate:"required,email"`
+	MobileNumber string `json:"mobile_number" validate:"required"`
+	Role         string `json:"role" validate:"required"`
 }
 
 type RegisterResponse struct {
@@ -21,8 +21,8 @@ type RegisterResponse struct {
 }
 
 type LoginRequest struct {
-	Username string `validate:"required,min=3,max=15"`
-	Password string `validate:"required"`
+	Username string `json:"username" validate:"required,min=3,max=15"`
+	Password string `json:"password" validate:"required"`
 }
 
 type LoginResponse struct {

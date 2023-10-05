@@ -1,12 +1,12 @@
 package model
 
 type Response struct {
-	Data          interface{}
-	ErrorResponse ErrorResponse
+	Data          interface{}   `json:"data,omitempty"`
+	ErrorResponse ErrorResponse `json:"error_response,omitempty"`
 }
 
 type ErrorResponse struct {
-	Err         error
-	Description string
-	StatusCode  int
+	Err         error  `json:"-"`
+	Description string `json:"description,omitempty"`
+	StatusCode  int    `json:"status_code,omitempty"`
 }

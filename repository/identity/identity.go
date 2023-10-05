@@ -33,10 +33,10 @@ func NewIdentityManager(cfg config.KeycloakParams, logger *logging.Logger) servi
 	}
 }
 
-func (im *identityManager) loginRestApiClient(ctx context.Context) (*gocloak.JWT, *model.AppError) {
+func (im *identityManager) loginRestApiClient(ctx context.Context) (*gocloak.JWT, model.AppError) {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	token, err := client.LoginClient(ctx, im.clientId, im.clientSecret, im.realm)
@@ -46,13 +46,13 @@ func (im *identityManager) loginRestApiClient(ctx context.Context) (*gocloak.JWT
 		appError.StatusCode = model.Repository
 		return nil, appError
 	}
-	return token, nil
+	return token, appError
 }
 
-func (im *identityManager) loginRestApiUser(ctx context.Context, username, password string) (*gocloak.JWT, *model.AppError) {
+func (im *identityManager) loginRestApiUser(ctx context.Context, username, password string) (*gocloak.JWT, model.AppError) {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	token, err := client.Login(ctx, im.clientId, im.clientSecret, im.realm, username, password)
@@ -63,25 +63,26 @@ func (im *identityManager) loginRestApiUser(ctx context.Context, username, passw
 		return nil, appError
 	}
 
-	return token, nil
+	return token, appError
 }
 
-func (im *identityManager) CreateUser(ctx context.Context, user gocloak.User, password string, role string) (*gocloak.User, *model.AppError) {
+func (im *identityManager) CreateUser(ctx context.Context, user gocloak.User, password string, role string) (*gocloak.User, model.AppError) {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	token, appError := im.loginRestApiClient(ctx)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, appError
 	}
 
 	userId, err := client.CreateUser(ctx, token.AccessToken, im.realm, user)
 	if err != nil {
 		im.logger.Errorf("failed to create the user: %v", err)
+		appError.Err = err
 		appError.Message = fmt.Sprintf("failed to create the user: %v", err)
-		appError.StatusCode = model.Repository
+		appError.StatusCode = model.BadRequest
 		return nil, appError
 	}
 
@@ -119,22 +120,22 @@ func (im *identityManager) CreateUser(ctx context.Context, user gocloak.User, pa
 		return nil, appError
 	}
 
-	return userKeycloak, nil
+	return userKeycloak, appError
 }
 
-func (im *identityManager) LoginUser(ctx context.Context, username, password string) (*gocloak.User, *gocloak.JWT, *model.AppError) {
+func (im *identityManager) LoginUser(ctx context.Context, username, password string) (*gocloak.User, *gocloak.JWT, model.AppError) {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	userToken, appError := im.loginRestApiUser(ctx, username, password)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, nil, appError
 	}
 
 	clientToken, appError := im.loginRestApiClient(ctx)
-	if appError != nil {
+	if appError.Err != nil {
 		return nil, nil, appError
 	}
 
@@ -154,17 +155,17 @@ func (im *identityManager) LoginUser(ctx context.Context, username, password str
 		return nil, nil, appError
 	}
 
-	return user, userToken, nil
+	return user, userToken, appError
 }
 
-func (im *identityManager) UpdateUserAttribute(ctx context.Context, userID string, attribute map[string][]string) *model.AppError {
+func (im *identityManager) UpdateUserAttribute(ctx context.Context, userID string, attribute map[string][]string) model.AppError {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	clientToken, appError := im.loginRestApiClient(ctx)
-	if appError != nil {
+	if appError.Err != nil {
 		return appError
 	}
 
@@ -186,13 +187,13 @@ func (im *identityManager) UpdateUserAttribute(ctx context.Context, userID strin
 		return appError
 	}
 
-	return nil
+	return appError
 }
 
-func (im *identityManager) GenerateOTP(ctx context.Context) (string, bytes.Buffer, *model.AppError) {
+func (im *identityManager) GenerateOTP(ctx context.Context) (string, bytes.Buffer, model.AppError) {
 	var (
 		qrCode   bytes.Buffer
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	// генерация OTP
@@ -225,17 +226,17 @@ func (im *identityManager) GenerateOTP(ctx context.Context) (string, bytes.Buffe
 		return "", bytes.Buffer{}, appError
 	}
 
-	return key.Secret(), qrCode, nil
+	return key.Secret(), qrCode, appError
 }
 
-func (im *identityManager) ValidateOTP(ctx context.Context, userID, passcode string) (bool, *model.AppError) {
+func (im *identityManager) ValidateOTP(ctx context.Context, userID, passcode string) (bool, model.AppError) {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	clientToken, appError := im.loginRestApiClient(ctx)
-	if appError != nil {
+	if appError.Err != nil {
 		return false, appError
 	}
 
@@ -268,13 +269,13 @@ func (im *identityManager) ValidateOTP(ctx context.Context, userID, passcode str
 
 	validate := totp.Validate(passcode, otpSecret)
 
-	return validate, nil
+	return validate, appError
 }
 
-func (im *identityManager) RetrospectToken(ctx context.Context, accessToken string) (*gocloak.IntroSpectTokenResult, *model.AppError) {
+func (im *identityManager) RetrospectToken(ctx context.Context, accessToken string) (*gocloak.IntroSpectTokenResult, model.AppError) {
 	var (
 		client   = gocloak.NewClient(im.baseUrl)
-		appError *model.AppError
+		appError model.AppError
 	)
 
 	rptResult, err := client.RetrospectToken(ctx, accessToken, im.clientId, im.clientSecret, im.realm)
@@ -284,5 +285,5 @@ func (im *identityManager) RetrospectToken(ctx context.Context, accessToken stri
 		appError.StatusCode = model.Repository
 		return nil, appError
 	}
-	return rptResult, nil
+	return rptResult, appError
 }
