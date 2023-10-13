@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"falcon/contoller/middleware"
+	"falcon/controller/middleware"
 	"falcon/pkg/logging"
 	"falcon/service"
 	"github.com/gin-gonic/gin"

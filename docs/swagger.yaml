@@ -1,0 +1,221 @@
+basePath: /v1
+definitions:
+  model.ErrorResponse:
+    properties:
+      description:
+        type: string
+      status_code:
+        type: integer
+    type: object
+  model.GenerateOtpRequest:
+    properties:
+      keycloak_user_id:
+        type: string
+    type: object
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        maxLength: 30
+        minLength: 1
+        type: string
+      last_name:
+        maxLength: 30
+        minLength: 1
+        type: string
+      mobile_number:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - email
+    - mobile_number
+    - password
+    - role
+    - username
+    type: object
+  model.Response:
+    properties:
+      data: {}
+      error_response:
+        $ref: '#/definitions/model.ErrorResponse'
+    type: object
+  model.ValidateOtpRequest:
+    properties:
+      keycloak_user_id:
+        type: string
+      otp_token:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8003
+info:
+  contact: {}
+  description: FalconApi
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Сервис админки FalconApi
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Проверка состояния системы
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Метод проверки состояния системы
+      tags:
+      - HealthCheck
+  /auth/generate-otp:
+    post:
+      consumes:
+      - application/json
+      description: Генерация OTP
+      parameters:
+      - description: Generate OTP data
+        in: body
+        name: GenerateOtp
+        required: true
+        schema:
+          $ref: '#/definitions/model.GenerateOtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: PNG image data
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Метод генарации OTP
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Вход пользователя под логином и паролем
+      parameters:
+      - description: Login data
+        in: body
+        name: LoginInput
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Метод входа пользователя
+      tags:
+      - Auth
+  /auth/user:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация пользователя
+      parameters:
+      - description: Login data
+        in: body
+        name: RegisterInput
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Метод регистрации пользователя
+      tags:
+      - Auth
+  /auth/validate-otp:
+    post:
+      consumes:
+      - application/json
+      description: Валидация OTP
+      parameters:
+      - description: Validate OTP data
+        in: body
+        name: ValidateOtp
+        required: true
+        schema:
+          $ref: '#/definitions/model.ValidateOtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Метод валидации OTP
+      tags:
+      - Auth
+schemes:
+- http
+- https
+swagger: "2.0"

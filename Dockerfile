@@ -20,6 +20,6 @@ WORKDIR /app
 COPY --from=builder /app/falconApi .
 COPY --from=builder /app/config .
 
-EXPOSE 8000
+EXPOSE 8003
 
 CMD ["/app/falconApi"]

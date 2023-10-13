@@ -12,3 +12,6 @@ db:
   username: falcon
   password: pass
   ssl_mode: disable
+
+app:
+  port_run: 8003
